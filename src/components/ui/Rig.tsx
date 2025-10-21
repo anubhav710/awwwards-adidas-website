@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import React from "react";
+
 import { easing } from "maath";
 const Rig = () => {
   return useFrame((state, delta) => {

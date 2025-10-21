@@ -125,7 +125,7 @@ export function MainStudioModel({
       material: mats.sportShirt,
       geometry: nodes.Shirt_Sport.geometry,
       hoverMe: mats.redStudio,
-      slug: "red",
+      slug: "sport",
     },
     {
       position: [0.65, 0.7, -0.45] as [number, number, number],
