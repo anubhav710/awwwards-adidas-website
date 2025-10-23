@@ -3,8 +3,11 @@ import React, { useRef } from "react";
 import { useGLTF, useMask } from "@react-three/drei";
 
 import { TextureKey } from "@/lib/textures";
+
+import useFirstAnimation from "@/lib/useFirstAnimation";
 import { useShirtSectionTextures } from "@/lib/useTexture";
 import { createMaterial } from "@/lib/material";
+import Masking from "../common/Masking";
 
 type GLTFResult = {
   nodes: {
@@ -15,17 +18,21 @@ export function FirstGrayModel() {
   const { nodes } = useGLTF(
     "/models/gray/GrayStudio.glb"
   ) as unknown as GLTFResult;
-
+  const stencil = useMask(1);
   const shirtRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
+  const maskRef = useRef<THREE.Mesh>(null);
   const textures = useShirtSectionTextures("gray", "first");
-  const mats = createMaterial(textures) as Record<
+  const mats = createMaterial(textures, stencil) as Record<
     TextureKey<"gray", "first">,
     THREE.MeshBasicMaterial
   >;
 
+  useFirstAnimation(groupRef, shirtRef, maskRef);
+
   return (
     <group>
+      <Masking ref={maskRef} />
       <group ref={groupRef} dispose={null}>
         <mesh
           ref={shirtRef}
