@@ -25,7 +25,7 @@ export default function Home() {
           scale={isMobile ? 0.8 : 1}
         />
       </View>
-      <p className="absolute z-10 top-11/12 place-self-center text-white/80 md:text-xs text-[10px] font-medium tracking-wider">
+      <p className="absolute z-20 top-11/12  left-1/2 -translate-x-1/2 text-white/80 md:text-xs text-[10px] font-medium tracking-wider">
         SELECT A PRODUCT TO BEGIN
       </p>
       <div
