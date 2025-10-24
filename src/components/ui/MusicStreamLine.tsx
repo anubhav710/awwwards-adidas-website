@@ -66,13 +66,13 @@ const MusicStreamLine = ({ color }: { color: string }) => {
       {!isFirstInteraction && (
         <div
           className={clsx(
-            "fixed inset-0 flex flex-col items-center justify-end bottom-2 transition-opacity duration-700 animate-pulse",
+            "fixed inset-0 flex flex-col lg:items-center items-end md:px-5 justify-end bottom-2  transition-opacity duration-700 animate-pulse",
             isFirstInteraction ? "opacity-0 pointer-events-none" : "opacity-100"
           )}
         >
           <p
             className={clsx(
-              "md:text-xs text-[10px] font-medium tracking-wider",
+              "md:text-xs text-[10px] relative right-0  font-medium tracking-wider",
               color === "bg-black" ? "text-black" : "text-white"
             )}
           >
