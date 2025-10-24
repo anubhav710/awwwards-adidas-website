@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Mulish } from "next/font/google";
 import "./globals.css";
 import ViewCanvas from "@/components/sections/ViewCanvas";
+import Header from "@/components/common/Header";
+import Footer from "@/components/common/Footer";
 
 const mulish = Mulish({
   subsets: ["latin"],
@@ -22,7 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${mulish.className} antialiased`}>
         <ViewCanvas />
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

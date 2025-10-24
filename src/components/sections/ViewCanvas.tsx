@@ -1,13 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { MainStudioModel } from "../models/MainStudioModel";
-import { OrbitControls, View } from "@react-three/drei";
+import { View } from "@react-three/drei";
+import AssetsPreload from "../common/AssetsPreLoad";
+import LoadingSkeleton from "../common/Loader";
 import Rig from "../ui/Rig";
 
 const ViewCanvas = () => {
   const [eventSource, setEventSource] = useState<HTMLElement | null>(null);
-
   useEffect(() => {
     setEventSource(document.body);
   }, []);
@@ -19,7 +19,9 @@ const ViewCanvas = () => {
       eventPrefix="client"
       gl={{ stencil: true }}
     >
-      <View.Port />
+      <Suspense>
+        <View.Port />
+      </Suspense>
       <Rig />
     </Canvas>
   );

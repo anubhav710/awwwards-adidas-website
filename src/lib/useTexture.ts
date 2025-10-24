@@ -35,6 +35,9 @@ function useModifiedTextures(
   }
   return texture;
 }
+export const useMainStudioTextures = () => {
+  return useModifiedTextures(studioTextures.main, true);
+};
 
 export const useShirtEnvirmentCube = (shirtType: ShirtType) => {
   const path = envirmentPaths[shirtType];
