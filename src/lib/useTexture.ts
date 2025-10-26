@@ -7,6 +7,7 @@ import {
   videoTextures,
 } from "./textures";
 import * as THREE from "three";
+import { useMemo } from "react";
 
 export const useMainStudioTexture = () => {
   return useModifiedTextures(studioTextures.main, true);
@@ -41,12 +42,16 @@ export const useMainStudioTextures = () => {
 
 export const useShirtEnvirmentCube = (shirtType: ShirtType) => {
   const path = envirmentPaths[shirtType];
-  return useCubeTexture(
-    ["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"],
-    { path }
-  );
-};
 
+  const env = useMemo(() => {
+    const tex = new THREE.CubeTextureLoader()
+      .setPath(path)
+      .load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, [path]);
+  return env;
+};
 export const useShirtVideoTexture = (shirtType: ShirtType) => {
   const path = videoTextures[shirtType];
   return useVideoTexture(path);

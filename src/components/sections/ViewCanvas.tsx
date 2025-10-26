@@ -5,12 +5,17 @@ import { View } from "@react-three/drei";
 import AssetsPreload from "../common/AssetsPreLoad";
 import LoadingSkeleton from "../common/Loader";
 import Rig from "../ui/Rig";
+import { patchThreeLoadingManager } from "@/lib/preLoader";
+
+patchThreeLoadingManager();
 
 const ViewCanvas = () => {
   const [eventSource, setEventSource] = useState<HTMLElement | null>(null);
+
   useEffect(() => {
     setEventSource(document.body);
   }, []);
+
   return (
     <Canvas
       style={{ position: "fixed", inset: 0, overflow: "hidden" }}
@@ -19,7 +24,7 @@ const ViewCanvas = () => {
       eventPrefix="client"
       gl={{ stencil: true }}
     >
-      <Suspense>
+      <Suspense fallback={<LoadingSkeleton />}>
         <View.Port />
       </Suspense>
       <Rig />

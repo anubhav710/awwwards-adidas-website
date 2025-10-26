@@ -1,7 +1,15 @@
 import { envirmentPaths, ShirtType, studioTextures } from "@/lib/textures";
 import { useGLTF, useTexture } from "@react-three/drei";
+import { useEffect } from "react";
+import { useThree } from "@react-three/fiber";
 
-const AssetsPreload = () => {
+interface AssetsPreloadProps {
+  onComplete?: () => void;
+}
+
+const AssetsPreload = ({ onComplete }: AssetsPreloadProps) => {
+  const { gl } = useThree();
+
   useGLTF.preload("/models/main/MainStudio.glb");
   useGLTF.preload("/models/white/WhiteStudio.glb");
   useGLTF.preload("/models/sport/SportStudio.glb");
@@ -39,6 +47,23 @@ const AssetsPreload = () => {
       useTexture.preload(`${envirmentPaths[shirtType]}${side}`);
     });
   });
+
+  useEffect(() => {
+    if (onComplete && gl.loader) {
+      const checkLoadingComplete = () => {
+        if (gl.loader.manager.itemsLoaded === gl.loader.manager.itemsTotal) {
+          onComplete();
+        } else {
+          // Check again in next frame
+          requestAnimationFrame(checkLoadingComplete);
+        }
+      };
+
+      // Start checking after a short delay to allow preloads to register
+      setTimeout(checkLoadingComplete, 100);
+    }
+  }, [onComplete, gl.loader]);
+
   return null;
 };
 

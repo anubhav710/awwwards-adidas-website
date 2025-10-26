@@ -1,22 +1,19 @@
-"use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useGLTF, useTexture } from "@react-three/drei";
-
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import * as THREE from "three";
-
+import { useGLTF } from "@react-three/drei";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useRouter } from "next/navigation";
-import { useMainStudioTexture } from "@/lib/useTexture";
-import { createMaterial } from "@/lib/material";
+
 import { studioTextures } from "@/lib/textures";
+import { useMainStudioTextures } from "@/lib/useTexture";
+import { createMaterial } from "@/lib/material";
 
 type GLTFResult = {
   nodes: {
     [name: string]: THREE.Mesh;
   };
 };
-
 export function MainStudioModel({
   currentIndex,
   scale,
@@ -24,15 +21,92 @@ export function MainStudioModel({
   currentIndex: number;
   scale: number;
 }) {
-  const meshRef = useRef<(THREE.Mesh | null)[]>([]);
+  const { nodes } = useGLTF(
+    "/models/main/MainStudio.glb"
+  ) as unknown as GLTFResult;
+
+  const textures = useMainStudioTextures();
+  const mats = createMaterial(textures) as Record<
+    keyof typeof studioTextures.main,
+    THREE.MeshBasicMaterial
+  >;
+
+  const shirts = useMemo(
+    () => [
+      {
+        position: [0.65, 0.7, -0.45] as [number, number, number],
+        rotation: [0, Math.PI / 9, 0] as [number, number, number],
+        geometry: nodes.Shirt_White.geometry,
+        material: mats.whiteShirt,
+        hoverdMat: mats.whiteStudio,
+        slug: "white",
+      },
+      {
+        position: [0, 0.7, 0] as [number, number, number],
+        rotation: [0, 0, 0] as [number, number, number],
+        geometry: nodes.Shirt_Sport.geometry,
+        material: mats.sportShirt,
+        hoverdMat: mats.redStudio,
+        slug: "sport",
+      },
+      {
+        position: [-0.65, 0.7, -0.45] as [number, number, number],
+        rotation: [0, -Math.PI / 9, 0] as [number, number, number],
+        geometry: nodes.Shirt_Gray.geometry,
+        material: mats.grayShirt,
+        hoverdMat: mats.grayStudio,
+        slug: "gray",
+      },
+    ],
+    [nodes, mats]
+  );
+  const [envMaterial, setEnvMaterial] = useState<THREE.MeshBasicMaterial>(
+    mats.defaultStudio
+  );
+  const groupRef = useRef<THREE.Group>(null);
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const tlRefs = useRef<GSAPTimeline[]>([]);
   const router = useRouter();
-  const tlRef = useRef<GSAPTimeline[]>([]);
+  useEffect(() => {
+    shirts.forEach((shirt) => {
+      router.prefetch(`/shirts/${shirt.slug}`);
+    });
+  }, [router, shirts]);
 
   useGSAP(() => {
-    if (!meshRef.current) return;
-    meshRef.current.forEach((mesh, i) => {
+    const hasAnimationRun = sessionStorage.getItem("mainStudioAnimationRan");
+    if (!groupRef.current || hasAnimationRun) return;
+    gsap.from(groupRef.current.position, {
+      y: -0.15,
+      z: 2,
+      duration: 4,
+      ease: "power4.inOut",
+      onComplete: () => {
+        sessionStorage.setItem("mainStudioAnimationRan", "true");
+      },
+    });
+    meshRefs.current.forEach((shirt, i) => {
+      if (!shirt) return;
+      gsap.from(shirt.position, {
+        x: shirt.position.x * 2,
+        delay: 1,
+        duration: 3,
+        ease: "power2.out",
+      });
+      gsap.from(shirt.rotation, {
+        y: shirt.rotation.y * 4,
+        delay: 1,
+        duration: 3,
+        ease: "power2.out",
+      });
+    });
+  });
+
+  useGSAP(() => {
+    if (!meshRefs.current) return;
+    meshRefs.current.forEach((mesh, i) => {
       if (!mesh) return;
-      tlRef.current[i] = gsap
+      tlRefs.current[i] = gsap
         .timeline({ paused: true })
         .to(mesh.rotation, { y: 0, duration: 1, ease: "power1.inOut" })
         .to(
@@ -48,119 +122,69 @@ export function MainStudioModel({
         );
     });
   });
-
   useGSAP(() => {
     if (window.innerWidth > 768) return;
-    for (let i = 0; i < meshRef.current.length; i++) {
-      const mesh = meshRef.current[i];
+    for (let i = 0; i < meshRefs.current.length; i++) {
+      const mesh = meshRefs.current[i];
       if (!mesh) return;
-
       switch (currentIndex) {
         case 0:
-          gsap.to(mesh.position, { x: mesh.position.x + 0.65 });
+          gsap.to(mesh.position, { x: mesh.position.x - 0.65 });
           gsap.to(mesh.rotation, { y: 0 });
-          gsap.to(meshRef.current[0]!.position, { z: 0 });
-          gsap.to(meshRef.current[1]!.position, { z: -0.45 });
-          setEnvMaterial(mats.grayStudio);
+          gsap.to(meshRefs.current[0]!.position, { z: 0 });
+          gsap.to(meshRefs.current[1]!.position, { z: -0.45 });
+          setEnvMaterial(mats.whiteStudio);
           break;
         case 1:
           gsap.to(mesh.position, {
-            x: shirt[i].position[0],
-            z: shirt[i].position[2],
+            x: shirts[i].position[0],
+            z: shirts[i].position[2],
           });
           setEnvMaterial(mats.redStudio);
           break;
         case 2:
-          gsap.to(mesh.position, { x: mesh.position.x - 0.65 });
+          gsap.to(mesh.position, { x: mesh.position.x + 0.65 });
           gsap.to(mesh.rotation, { y: 0 });
-          gsap.to(meshRef.current[2]!.position, { z: 0 });
-          gsap.to(meshRef.current[1]!.position, { z: -0.45 });
-          setEnvMaterial(mats.whiteStudio);
+          gsap.to(meshRefs.current[2]!.position, { z: 0 });
+          gsap.to(meshRefs.current[1]!.position, { z: -0.45 });
+          setEnvMaterial(mats.grayStudio);
           break;
       }
     }
   }, [currentIndex]);
-
-  const { nodes } = useGLTF(
-    "/models/main/MainStudio.glb"
-  ) as unknown as GLTFResult;
-
-  const textures = useMainStudioTexture();
-  const mats = createMaterial(textures) as Record<
-    keyof typeof studioTextures.main,
-    THREE.MeshBasicMaterial
-  >;
-
-  const [envMaterial, setEnvMaterial] = useState<THREE.MeshBasicMaterial>(
-    mats.defaultStudio
-  );
-
-  function enterHandler(material: THREE.MeshBasicMaterial, index: number) {
+  function enterHandler(index: number, material: THREE.MeshBasicMaterial) {
     document.body.style.cursor = "pointer";
     setEnvMaterial(material);
-    tlRef.current[index].play();
+    tlRefs.current[index].play();
   }
   function leaveHandler(index: number) {
     document.body.style.cursor = "auto";
-    tlRef.current[index].reverse();
+    tlRefs.current[index].reverse();
   }
-
   function handleClick(slug: string) {
-    router.push(`/shirt/${slug}`);
+    router.push(`/shirts/${slug}`);
+    document.body.style.cursor = "auto";
   }
-
-  const shirt = [
-    {
-      position: [-0.65, 0.7, -0.45] as [number, number, number],
-      rotation: [0, -Math.PI / 9, 0] as [number, number, number],
-      material: mats.grayShirt,
-      geometry: nodes.Shirt_Gray.geometry,
-      hoverMe: mats.grayStudio,
-      slug: "gray",
-    },
-
-    {
-      position: [0, 0.7, 0] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-      material: mats.sportShirt,
-      geometry: nodes.Shirt_Sport.geometry,
-      hoverMe: mats.redStudio,
-      slug: "sport",
-    },
-    {
-      position: [0.65, 0.7, -0.45] as [number, number, number],
-      rotation: [0, Math.PI / 9, 0] as [number, number, number],
-      material: mats.whiteShirt,
-      geometry: nodes.Shirt_White.geometry,
-      hoverMe: mats.whiteStudio,
-      slug: "white",
-    },
-  ];
-  useEffect(() => {
-    shirt.forEach((s) => {
-      router.prefetch(`/shirt/${s.slug}`);
-    });
-  }, [router]);
   return (
-    <group dispose={null} scale={scale}>
+    <group ref={groupRef} dispose={null} scale={scale}>
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Environment.geometry}
         material={envMaterial}
       />
-      {shirt.map((shirt, i) => (
+      {shirts.map((shirt, i) => (
         <mesh
+          key={i}
           ref={(m) => {
             if (!m) return;
-            meshRef.current[i] = m;
+            meshRefs.current[i] = m;
           }}
-          key={i}
           geometry={shirt.geometry}
           material={shirt.material}
           position={shirt.position}
           rotation={shirt.rotation}
-          onPointerEnter={() => enterHandler(shirt.hoverMe, i)}
+          onPointerEnter={() => enterHandler(i, shirt.hoverdMat)}
           onPointerLeave={() => leaveHandler(i)}
           onClick={() => handleClick(shirt.slug)}
         />
@@ -174,5 +198,3 @@ export function MainStudioModel({
     </group>
   );
 }
-
-useGLTF.preload("/models/main/MainStudio.glb");

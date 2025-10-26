@@ -11,7 +11,7 @@ const Bars = () => {
       .timeline({
         repeat: -1,
         repeatDelay: 1,
-        defaults: { stagger: 0.5, ease: "back.out" },
+        defaults: { stagger: 0.3, ease: "back.out" },
       })
       .to(divRef.current.children, {
         clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)",
