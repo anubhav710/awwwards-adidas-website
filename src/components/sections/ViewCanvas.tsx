@@ -2,7 +2,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
-import AssetsPreload from "../common/AssetsPreLoad";
 import LoadingSkeleton from "../common/Loader";
 import Rig from "../ui/Rig";
 import { patchThreeLoadingManager } from "@/lib/preLoader";
