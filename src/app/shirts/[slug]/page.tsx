@@ -1,6 +1,6 @@
 "use client";
 
-import ScrollIndicator from "@/components/common/scrollIndicator";
+import Indicator from "@/components/common/Indicator";
 import Scene from "@/components/ui/Scene";
 import { ShirtType } from "@/lib/textures";
 
@@ -13,7 +13,7 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
   return (
     <>
       <Scene shirtType={shirtType} />
-      <ScrollIndicator shirtType={shirtType} />
+      <Indicator shirtType={shirtType} />
     </>
   );
 };

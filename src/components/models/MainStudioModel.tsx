@@ -129,7 +129,7 @@ export function MainStudioModel({
       if (!mesh) return;
       switch (currentIndex) {
         case 0:
-          gsap.to(mesh.position, { x: mesh.position.x - 0.65 });
+          gsap.to(mesh.position, { x: mesh.position.x + 0.65 });
           gsap.to(mesh.rotation, { y: 0 });
           gsap.to(meshRefs.current[0]!.position, { z: 0 });
           gsap.to(meshRefs.current[1]!.position, { z: -0.45 });
@@ -143,7 +143,7 @@ export function MainStudioModel({
           setEnvMaterial(mats.redStudio);
           break;
         case 2:
-          gsap.to(mesh.position, { x: mesh.position.x + 0.65 });
+          gsap.to(mesh.position, { x: mesh.position.x - 0.65 });
           gsap.to(mesh.rotation, { y: 0 });
           gsap.to(meshRefs.current[2]!.position, { z: 0 });
           gsap.to(meshRefs.current[1]!.position, { z: -0.45 });

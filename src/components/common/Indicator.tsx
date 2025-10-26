@@ -1,10 +1,11 @@
+"use client";
 import { ShirtType } from "@/lib/textures";
 import { useGSAP } from "@gsap/react";
 import clsx from "clsx";
 import gsap from "gsap/all";
 import React, { useEffect, useRef, useState } from "react";
 
-const ScrollIndicator = ({ shirtType }: { shirtType: ShirtType }) => {
+const Indicator = ({ shirtType }: { shirtType: ShirtType }) => {
   const [isScrolling, setIsScrolling] = useState(false);
   const divRef = useRef<HTMLDivElement | null>(null);
 
@@ -82,4 +83,4 @@ const ScrollIndicator = ({ shirtType }: { shirtType: ShirtType }) => {
   );
 };
 
-export default ScrollIndicator;
+export default Indicator;
